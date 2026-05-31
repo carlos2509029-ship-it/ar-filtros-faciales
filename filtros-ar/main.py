@@ -7,6 +7,7 @@ from filters.mustache_filter import MustacheFilter
 from filters.glasses_filter import GlassesFilter
 from filters.helmet_filter import HelmetFilter
 from filters.welding_mask_filter import WeldingMaskFilter
+from filters.hybridge_shield_filter import HybridgeShieldFilter
 
 from filter_pipeline import FilterPipeline
 
@@ -36,11 +37,9 @@ if selected_camera not in cameras:
     print("La cámara seleccionada no está disponible.")
     exit()
 
-
 camera = CameraManager(selected_camera)
 
 detector = FaceDetector()
-
 
 mustache_filter = MustacheFilter(
     "filtros-ar/assets/mustache.png"
@@ -62,6 +61,9 @@ welding_mask_filter = WeldingMaskFilter(
     "filtros-ar/assets/welding_mask.png"
 )
 
+hybridge_filter = HybridgeShieldFilter(
+    "filtros-ar/models/hybridge_shield.glb"
+)
 
 pipeline = FilterPipeline()
 
@@ -81,16 +83,20 @@ pipeline.add(
 )
 
 pipeline.add(
+    "hybridge",
+    hybridge_filter
+)
+
+pipeline.add(
     "welding_mask",
     welding_mask_filter
 )
 
-
 helmet_enabled = True
 mustache_enabled = True
 glasses_enabled = True
+hybridge_enabled = True
 welding_mask_enabled = False
-
 
 while True:
 
@@ -120,6 +126,7 @@ while True:
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("g"):
+
         glasses_filter.next_asset()
 
     elif key == ord("1"):
@@ -161,6 +168,19 @@ while True:
             f"Casco {'ON' if helmet_enabled else 'OFF'}"
         )
 
+    elif key == ord("4"):
+
+        hybridge_enabled = not hybridge_enabled
+
+        pipeline.set_enabled(
+            "hybridge",
+            hybridge_enabled
+        )
+
+        print(
+            f"Hybridge Shield {'ON' if hybridge_enabled else 'OFF'}"
+        )
+
     elif key == ord("5"):
 
         welding_mask_enabled = (
@@ -178,7 +198,6 @@ while True:
 
     elif key == ord("q"):
         break
-
 
 camera.release()
 cv2.destroyAllWindows()
