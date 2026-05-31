@@ -2,8 +2,13 @@ import cv2
 
 from camera_manager import CameraManager
 from face_detector import FaceDetector
+
 from filters.mustache_filter import MustacheFilter
 from filters.glasses_filter import GlassesFilter
+from filters.helmet_filter import HelmetFilter
+from filters.welding_mask_filter import WeldingMaskFilter
+
+from filter_pipeline import FilterPipeline
 
 
 cameras = CameraManager.list_available()
@@ -36,6 +41,7 @@ camera = CameraManager(selected_camera)
 
 detector = FaceDetector()
 
+
 mustache_filter = MustacheFilter(
     "filtros-ar/assets/mustache.png"
 )
@@ -43,9 +49,47 @@ mustache_filter = MustacheFilter(
 glasses_filter = GlassesFilter(
     [
         "filtros-ar/assets/glasses.png",
-        "filtros-ar/assets/glasses2.png"
+        "filtros-ar/assets/glasses2.png",
+        "filtros-ar/assets/safety_goggles.png"
     ]
 )
+
+helmet_filter = HelmetFilter(
+    "filtros-ar/assets/mechanic_helmet.png"
+)
+
+welding_mask_filter = WeldingMaskFilter(
+    "filtros-ar/assets/welding_mask.png"
+)
+
+
+pipeline = FilterPipeline()
+
+pipeline.add(
+    "helmet",
+    helmet_filter
+)
+
+pipeline.add(
+    "mustache",
+    mustache_filter
+)
+
+pipeline.add(
+    "glasses",
+    glasses_filter
+)
+
+pipeline.add(
+    "welding_mask",
+    welding_mask_filter
+)
+
+
+helmet_enabled = True
+mustache_enabled = True
+glasses_enabled = True
+welding_mask_enabled = False
 
 
 while True:
@@ -63,25 +107,78 @@ while True:
 
         for face in results.multi_face_landmarks:
 
-            frame = mustache_filter.apply(
+            frame = pipeline.apply(
                 frame,
                 face.landmark
             )
 
-            frame = glasses_filter.apply(
-                frame,
-                face.landmark
-            )
-
-    cv2.imshow("Face Mesh", frame)
+    cv2.imshow(
+        "Face Mesh",
+        frame
+    )
 
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("g"):
         glasses_filter.next_asset()
 
-    if key == ord("q"):
+    elif key == ord("1"):
+
+        mustache_enabled = not mustache_enabled
+
+        pipeline.set_enabled(
+            "mustache",
+            mustache_enabled
+        )
+
+        print(
+            f"Mostacho {'ON' if mustache_enabled else 'OFF'}"
+        )
+
+    elif key == ord("2"):
+
+        glasses_enabled = not glasses_enabled
+
+        pipeline.set_enabled(
+            "glasses",
+            glasses_enabled
+        )
+
+        print(
+            f"Lentes {'ON' if glasses_enabled else 'OFF'}"
+        )
+
+    elif key == ord("3"):
+
+        helmet_enabled = not helmet_enabled
+
+        pipeline.set_enabled(
+            "helmet",
+            helmet_enabled
+        )
+
+        print(
+            f"Casco {'ON' if helmet_enabled else 'OFF'}"
+        )
+
+    elif key == ord("5"):
+
+        welding_mask_enabled = (
+            not welding_mask_enabled
+        )
+
+        pipeline.set_enabled(
+            "welding_mask",
+            welding_mask_enabled
+        )
+
+        print(
+            f"Mascara Soldador {'ON' if welding_mask_enabled else 'OFF'}"
+        )
+
+    elif key == ord("q"):
         break
 
 
 camera.release()
+cv2.destroyAllWindows()
