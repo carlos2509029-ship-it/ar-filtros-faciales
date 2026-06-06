@@ -1,5 +1,6 @@
 # Entorno virtual
 .venv/
+venv/
 
 # Python
 __pycache__/
@@ -11,3 +12,5 @@ __pycache__/
 # Windows
 Thumbs.db
 Desktop.ini
+
+requirements_original.txt

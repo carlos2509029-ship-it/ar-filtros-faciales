@@ -2,7 +2,6 @@ import cv2
 
 from camera_manager import CameraManager
 from face_detector import FaceDetector
-
 from filters.mustache_filter import MustacheFilter
 from filters.glasses_filter import GlassesFilter
 from filters.helmet_filter import HelmetFilter
