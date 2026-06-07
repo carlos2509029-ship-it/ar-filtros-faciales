@@ -4,7 +4,7 @@ import numpy as np
 
 
 MODEL_PATH = (
-    "filtros-ar/models/hybridge_shield.glb"
+    "filtros-ar/models/robot_mask.glb"
 )
 
 

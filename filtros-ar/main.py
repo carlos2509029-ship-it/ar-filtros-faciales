@@ -7,7 +7,7 @@ from filters.glasses_filter import GlassesFilter
 from filters.helmet_filter import HelmetFilter
 from filters.welding_mask_filter import WeldingMaskFilter
 from filters.hybridge_shield_filter import HybridgeShieldFilter
-
+from filters.robot_mask_filter import RobotMaskFilter
 from filter_pipeline import FilterPipeline
 
 
@@ -64,6 +64,10 @@ hybridge_filter = HybridgeShieldFilter(
     "filtros-ar/models/hybridge_shield.glb"
 )
 
+robot_mask_filter = RobotMaskFilter(
+    "filtros-ar/models/robot_mask.glb"
+)
+
 pipeline = FilterPipeline()
 
 pipeline.add(
@@ -87,14 +91,28 @@ pipeline.add(
 )
 
 pipeline.add(
+    "robot_mask",
+    robot_mask_filter
+)
+
+pipeline.add(
     "welding_mask",
     welding_mask_filter
 )
 
-helmet_enabled = True
-mustache_enabled = True
-glasses_enabled = True
-hybridge_enabled = True
+pipeline.set_enabled("helmet", False)
+pipeline.set_enabled("mustache", False)
+pipeline.set_enabled("glasses", False)
+pipeline.set_enabled("hybridge", False)
+pipeline.set_enabled("welding_mask", False)
+pipeline.set_enabled("robot_mask", False)
+
+
+helmet_enabled = False
+mustache_enabled = False
+glasses_enabled = False
+hybridge_enabled = False
+robot_mask_enabled = False
 welding_mask_enabled = False
 
 while True:
@@ -193,6 +211,21 @@ while True:
 
         print(
             f"Mascara Soldador {'ON' if welding_mask_enabled else 'OFF'}"
+        )
+
+    elif key == ord("6"):
+
+         robot_mask_enabled = (
+            not robot_mask_enabled
+        )
+         
+         pipeline.set_enabled(
+            "robot_mask",
+            robot_mask_enabled
+        )
+         
+         print(
+            f"Robot Mask {'ON' if robot_mask_enabled else 'OFF'}"
         )
 
     elif key == ord("q"):
